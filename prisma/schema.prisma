@@ -1,0 +1,154 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum ResumeStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum AIGenerationType {
+  SUMMARY
+  EXPERIENCE_BULLET
+  COVER_LETTER
+  SKILL_SUGGESTION
+  JOB_MATCH
+  ATS_FEEDBACK
+}
+
+enum ExportFormat {
+  PDF
+  DOCX
+}
+
+enum ExportStatus {
+  SUCCESS
+  FAILED
+}
+
+model User {
+  id           String         @id @default(uuid()) @db.Uuid
+  fullName     String         @map("full_name") @db.VarChar(120)
+  email        String         @unique @db.VarChar(255)
+  passwordHash String         @map("password_hash") @db.VarChar(255)
+  role         UserRole       @default(USER)
+  avatarUrl    String?        @map("avatar_url")
+  isVerified   Boolean        @default(false) @map("is_verified")
+  lastLoginAt  DateTime?      @map("last_login_at")
+  createdAt    DateTime       @default(now()) @map("created_at")
+  updatedAt    DateTime       @updatedAt @map("updated_at")
+
+  resumes       Resume[]
+  aiGenerations AIGeneration[]
+  exports       Export[]
+
+  @@index([createdAt])
+  @@map("users")
+}
+
+model Resume {
+  id                 String         @id @default(uuid()) @db.Uuid
+  userId             String         @map("user_id") @db.Uuid
+  title              String         @db.VarChar(150)
+  slug               String         @unique @db.VarChar(180)
+  templateKey        String         @default("modern") @map("template_key") @db.VarChar(50)
+  status             ResumeStatus   @default(DRAFT)
+
+  personalInfo       Json           @map("personal_info")
+  professionalSummary String?       @map("professional_summary")
+  education          Json
+  experience         Json
+  skills             Json
+  projects           Json?
+  certifications     Json?
+  languages          Json?
+  socialLinks        Json?          @map("social_links")
+  themeSettings      Json?          @map("theme_settings")
+  customSections     Json?          @map("custom_sections")
+
+  isPrimary          Boolean        @default(false) @map("is_primary")
+  createdAt          DateTime       @default(now()) @map("created_at")
+  updatedAt          DateTime       @updatedAt @map("updated_at")
+
+  user               User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  versions           ResumeVersion[]
+  aiGenerations      AIGeneration[]
+  exports            Export[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([userId, updatedAt])
+  @@map("resumes")
+}
+
+model ResumeVersion {
+  id            String    @id @default(uuid()) @db.Uuid
+  resumeId      String    @map("resume_id") @db.Uuid
+  versionNumber Int       @map("version_number")
+  snapshot      Json
+  changeNote    String?   @map("change_note") @db.VarChar(255)
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  resume        Resume    @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+
+  @@unique([resumeId, versionNumber])
+  @@index([resumeId])
+  @@index([createdAt])
+  @@map("resume_versions")
+}
+
+model AIGeneration {
+  id              String            @id @default(uuid()) @db.Uuid
+  userId          String            @map("user_id") @db.Uuid
+  resumeId        String?           @map("resume_id") @db.Uuid
+  generationType  AIGenerationType  @map("generation_type")
+  inputPrompt     String            @map("input_prompt")
+  inputContext    Json?             @map("input_context")
+  outputText      String            @map("output_text")
+  modelName       String?           @default("mock") @map("model_name") @db.VarChar(100)
+  tokensUsed      Int?              @map("tokens_used")
+  isSavedToResume Boolean           @default(false) @map("is_saved_to_resume")
+  createdAt       DateTime          @default(now()) @map("created_at")
+
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resume          Resume?           @relation(fields: [resumeId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([resumeId])
+  @@index([generationType])
+  @@index([createdAt])
+  @@map("ai_generations")
+}
+
+model Export {
+  id           String        @id @default(uuid()) @db.Uuid
+  userId       String        @map("user_id") @db.Uuid
+  resumeId     String        @map("resume_id") @db.Uuid
+  format       ExportFormat  @default(PDF)
+  status       ExportStatus  @default(SUCCESS)
+  fileUrl      String?       @map("file_url")
+  errorMessage String?       @map("error_message")
+  createdAt    DateTime      @default(now()) @map("created_at")
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resume       Resume        @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([resumeId])
+  @@index([format])
+  @@index([createdAt])
+  @@map("exports")
+}
