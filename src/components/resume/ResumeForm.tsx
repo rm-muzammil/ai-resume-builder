@@ -3,77 +3,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
-
-// ... [Types remain the same] ...
-type Education = {
-
-  id: string;
-
-  school: string;
-
-  degree: string;
-
-  startDate: string;
-
-  endDate: string;
-
-};
-
-
-
-type Experience = {
-
-  id: string;
-
-  company: string;
-
-  title: string;
-
-  startDate: string;
-
-  endDate: string;
-
-  description: string;
-
-};
-
-
-
-type Project = {
-
-  id: string;
-
-  name: string;
-
-  link?: string;
-
-  description?: string;
-
-};
-
-
-
-type Resume = {
-
-  id: string;
-
-  title: string;
-
-  professionalSummary?: string;
-
-  personalInfo: any;
-
-  education: Education[];
-
-  experience: Experience[];
-
-  skills: string[];
-
-  projects: Project[];
-
-  socialLinks?: any;
-
-};
+import type { Resume } from "@/types/resume";
 
 
 
@@ -100,7 +30,7 @@ export default function ResumeForm({ resume, onUpdate }: ResumeFormProps) {
   
   const [aiLoading, setAiLoading] = useState(false);
 
-  const handleChange = (field: keyof Resume, value: any) => {
+  const handleChange = (field: keyof Resume, value: unknown) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 

@@ -4,15 +4,11 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
-type Resume = {
-  id: string;
-  title: string;
-  slug: string;
-  templateKey: string;
-  createdAt: string;
-  updatedAt: string;
-};
+import { Resume } from "@/types/resume"
 
 export default function BuilderPage() {
   const router = useRouter();
@@ -25,7 +21,7 @@ export default function BuilderPage() {
   useEffect(() => {
     const fetchResumes = async () => {
       try {
-        const res = await axios.get("/api/resumes");
+        const res = await axios.get("/api/resume");
         if (res.data.success) {
           setResumes(res.data.resumes);
         } else {
@@ -45,11 +41,10 @@ export default function BuilderPage() {
   const createResume = async () => {
     if (!newTitle.trim()) return;
     try {
-      const res = await axios.post("/api/resumes", { title: newTitle });
+      const res = await axios.post("/api/resume", { title: newTitle });
       if (res.data.success) {
         setResumes([res.data.resume, ...resumes]);
         setNewTitle("");
-        // Navigate to builder page for new resume
         router.push(`/builder/${res.data.resume.id}`);
       } else {
         alert(res.data.message || "Failed to create resume");
@@ -60,46 +55,45 @@ export default function BuilderPage() {
     }
   };
 
-  if (loading) return <div className="p-6 text-white">Loading...</div>;
-  if (error) return <div className="p-6 text-red-400">{error}</div>;
+  if (loading) return <div className="p-6 text-center text-foreground">Loading...</div>;
+  if (error) return <div className="p-6 text-center text-destructive">{error}</div>;
 
   return (
-    <main className="min-h-screen p-6 mx-auto">
+    <main className="min-h-screen p-6 mx-auto max-w-7xl bg-background text-foreground">
       <h1 className="text-3xl font-bold mb-6">Resume Builder</h1>
 
-      <div className="mb-6 flex gap-2">
-        <input
+      {/* New Resume Form */}
+      <div className="flex flex-col sm:flex-row gap-2 mb-6">
+        <Input
+          placeholder="New Resume Title"
           value={newTitle}
           onChange={(e) => setNewTitle(e.target.value)}
-          placeholder="New Resume Title"
-          className="px-4 py-2 rounded-xl flex-1 text-black"
+          className="flex-1"
         />
-        <button
-          onClick={createResume}
-          className="bg-white text-slate-900 px-4 py-2 rounded-xl"
-        >
+        <Button onClick={createResume} variant="default">
           Create
-        </button>
+        </Button>
       </div>
 
+      {/* Resume List */}
       {resumes.length === 0 ? (
-        <p>No resumes yet. Create your first resume above!</p>
+        <p className="text-center text-muted-foreground">
+          No resumes yet. Create your first resume above!
+        </p>
       ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {resumes.map((r) => (
-            <Link
-              key={r.id}
-              href={`/builder/${r.id}`}
-              className="block rounded-xl border border-slate-700 p-4 hover:border-blue-500 transition"
-            >
-              <h2 className="text-xl font-semibold">{r.title}</h2>
-              <p className="text-sm text-slate-400">Template: {r.templateKey}</p>
-              <p className="text-sm text-slate-500">
-                Created: {new Date(r.createdAt).toLocaleDateString()}
-              </p>
-              <p className="text-sm text-slate-500">
-                Updated: {new Date(r.updatedAt).toLocaleDateString()}
-              </p>
+            <Link key={r.id} href={`/builder/${r.id}`} className="group">
+              <Card className="hover:border-primary transition border-border">
+                <CardHeader>
+                  <CardTitle>{r.title}</CardTitle>
+                  <CardDescription>Template: {r.templateKey}</CardDescription>
+                </CardHeader>
+                <CardContent className="text-sm text-muted-foreground space-y-1">
+                  <p>Created: {new Date(r.createdAt).toLocaleDateString()}</p>
+                  <p>Updated: {new Date(r.updatedAt).toLocaleDateString()}</p>
+                </CardContent>
+              </Card>
             </Link>
           ))}
         </div>

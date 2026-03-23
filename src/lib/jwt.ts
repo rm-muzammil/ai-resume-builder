@@ -1,31 +1,3 @@
-// import jwt from "jsonwebtoken";
-
-// const JWT_SECRET = process.env.JWT_SECRET || "super-secret-dev-key";
-
-// if (!process.env.JWT_SECRET) {
-//   console.warn("⚠️ JWT_SECRET is not set. Using fallback secret for development.");
-// }
-
-// export type JwtPayload = {
-//   userId: string;
-//   email: string;
-//   role: "USER" | "ADMIN";
-// };
-
-// export function signToken(payload: JwtPayload) {
-//   return jwt.sign(payload, JWT_SECRET, {
-//     expiresIn: "7d",
-//   });
-// }
-
-// export function verifyToken(token: string): JwtPayload | null {
-//   try {
-//     return jwt.verify(token, JWT_SECRET) as JwtPayload;
-//   } catch {
-//     return null;
-//   }
-// }
-
 import { SignJWT, jwtVerify } from "jose";
 
 const JWT_SECRET = new TextEncoder().encode(
@@ -57,6 +29,7 @@ export async function verifyToken(token: string): Promise<JwtPayload | null> {
     const { payload } = await jwtVerify(token, JWT_SECRET);
     return payload as unknown as JwtPayload;
   } catch (error) {
+    console.error("JWT verification failed:", error);
     return null;
   }
 }

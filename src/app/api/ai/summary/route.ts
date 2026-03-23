@@ -1,51 +1,5 @@
-// import { NextRequest, NextResponse } from "next/server";
-// import { HfInference } from "@huggingface/inference";
-// import { getCurrentUser } from "@/lib/server/auth";
-// import { log } from "console";
-
-// // Initialize Hugging Face client
-// const hf = new HfInference(process.env.HUGGINGFACE_API_KEY);
-
-// export async function POST(req: NextRequest) {
-//   const token = req.cookies.get("token")?.value;
-//   const user = await getCurrentUser(token);
-//   if (!user) return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
-
-//   const { resumeText } = await req.json();
-//   if (!resumeText) return NextResponse.json({ success: false, message: "resumeText is required" }, { status: 400 });
-
-// try {
-//   const response = await hf.chatCompletion({
-//     model: "Qwen/Qwen2.5-7B-Instruct",
-//     messages: [
-//       { role: "system", content: "You are a professional resume writer. Write a 3-sentence summary based on the following text." },
-//       { role: "user", content: `Resume text: ${resumeText}` }
-//     ],
-//     max_tokens: 300,
-//   }, {
-//     wait_for_model: true 
-//   } as any);
-
-//   // 1. Correct the extraction path
-//   const summary = response.choices[0].message?.content;
-
-//   log("Hugging Face API response:", response);
-
-//   return NextResponse.json({ success: true, summary });
-// } catch (error: any) {
-//     console.error("Hugging Face error:", error);
-    
-//     // Pro Tip: Hugging Face free tier sometimes has "Model is loading" errors
-//     const errorMessage = error.message?.includes("loading") 
-//       ? "AI model is warming up, please try again in 30 seconds." 
-//       : "AI generation failed";
-
-//     return NextResponse.json({ success: false, message: errorMessage }, { status: 500 });
-//   }
-// }
-
 import { NextRequest, NextResponse } from "next/server";
-import { HfInference } from "@huggingface/inference";
+import { HfInference,Options } from "@huggingface/inference";
 import { getCurrentUser } from "@/lib/server/auth";
 
 const hf = new HfInference(process.env.HUGGINGFACE_API_KEY);
@@ -69,6 +23,7 @@ export async function POST(req: NextRequest) {
       { status: 400 }
     );
   }
+  
 
   try {
     const response = await hf.chatCompletion(
@@ -114,7 +69,7 @@ Return only the final resume summary paragraph.
       },
       {
         wait_for_model: true,
-      } as any
+      } as Options
     );
 
     let summary = response.choices?.[0]?.message?.content?.trim() || "";
@@ -140,11 +95,13 @@ Return only the final resume summary paragraph.
       success: true,
       summary,
     });
-  } catch (error: any) {
+ } catch (error: unknown) { // 1. Change 'any' to 'unknown'
     console.error("Hugging Face error:", error);
 
-    const errorMessage =
-      error?.message?.includes("loading")
+    // 2. Safely extract the message
+    const rawMessage = error instanceof Error ? error.message : "";
+
+    const errorMessage = rawMessage.includes("loading")
         ? "AI model is warming up, please try again in 30 seconds."
         : "AI generation failed";
 

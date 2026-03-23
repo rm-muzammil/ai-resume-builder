@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Toaster } from "sonner";
+import { ThemeProvider } from "@/components/theme-provider";
+import SiteHeader from "@/components/layout/site-header";
 import "./globals.css";
 
 const inter = Inter({
@@ -18,10 +20,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${inter.className}`}>
-        {children}
-        <Toaster richColors position="top-right" />
+    <html lang="en" suppressHydrationWarning>
+      <body className={inter.className}>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+          <div className="min-h-screen bg-background text-foreground">
+            <SiteHeader />
+            <main>{children}</main>
+          </div>
+
+          <Toaster richColors position="top-right" />
+        </ThemeProvider>
       </body>
     </html>
   );
