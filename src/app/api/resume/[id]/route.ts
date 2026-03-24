@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 // import { Prisma } from "@/app/generated/prisma/client";
-import { Prisma } from "@/app/generated/prisma/client";
+import { Prisma } from "@/generated/client";
 import prisma from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/server/auth";
 import { z } from "zod"
