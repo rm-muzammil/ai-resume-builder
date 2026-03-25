@@ -1,36 +1,124 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AI Resume Builder
 
-## Getting Started
+A modern **AI-powered Resume Builder** built with **Next.js 16**, **TypeScript**, **Prisma**, and **PostgreSQL**.  
+Users can create, edit, manage, and export professional resumes with **AI-generated summaries** and **PDF download support**.
 
-First, run the development server:
+---
+
+## 🚀 Features
+
+- 🔐 **Custom JWT Authentication**
+  - User signup
+  - User login/logout
+  - Session check via API
+- 📝 **Resume Builder**
+  - Create professional resumes
+  - Edit existing resumes
+  - Save and manage multiple resumes
+- 🤖 **AI Summary Generator**
+  - Generate professional resume summaries using AI
+- 📄 **PDF Export**
+  - Download resume as a PDF using `puppeteer-core` + `@sparticuz/chromium-min`
+- 📊 **Dashboard**
+  - View and manage saved resumes
+- ⚡ **Modern App Router Architecture**
+  - Built with Next.js 16 App Router
+- 🗄️ **Database Integration**
+  - Prisma ORM + PostgreSQL
+
+---
+
+## 🛠️ Tech Stack
+
+### Frontend
+- Next.js 16 (App Router)
+- TypeScript
+- React
+- Tailwind CSS
+
+### Backend / APIs
+- Next.js Route Handlers
+- JWT Authentication
+- Prisma ORM
+- PostgreSQL
+
+### AI / Utilities
+- OpenAI API (or compatible AI provider)
+- Puppeteer Core
+- @sparticuz/chromium-min
+
+---
+
+## 📂 Project Structure
 
 ```bash
+src/
+├── app/                  # App Router pages and API routes
+├── components/           # Reusable UI components
+├── generated/            # Prisma generated client
+├── lib/                  # Utilities, auth helpers, DB config
+└── types/                # TypeScript types
+
+prisma/
+├── schema.prisma         # Prisma schema
+
+
+📦 Installation
+
+git clone https://github.com/your-username/ai-resume-builder.git
+cd ai-resume-builder
+npm install
+
+
+🧬 Prisma Setup
+
+Generate Prisma client:
+
+npx prisma generate
+
+Run migrations:
+
+npx prisma migrate dev
+
+
+▶️ Run Locally
+
+Start development server:
+
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+http://localhost:3000
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## Learn More
+🏗️ Production Build
 
-To learn more about Next.js, take a look at the following resources:
+Build the project:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+npm run build
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Start production server locally:
 
-## Deploy on Vercel
+npm run start
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+🚀 Deploy on Vercel
+
+Push the project to GitHub
+Import the repository into Vercel
+Add environment variables in Project Settings → Environment Variables
+Deploy
+Required Vercel Environment Variables
+DATABASE_URL
+JWT_SECRET
+OPENAI_API_KEY
+NEXT_PUBLIC_APP_URL
+📄 PDF Export Notes
+
+This project uses:
+
+puppeteer-core
+@sparticuz/chromium-min
+
+For Vercel serverless compatibility, Chromium binaries are included via next.config.ts with outputFileTracingIncludes.
